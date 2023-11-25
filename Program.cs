@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -13,18 +13,16 @@ namespace CSHttpClientSample
         static string key = "06728c79b5bf455e913552fcc5678b93";
         static string endpoint = "https://uwww.cognitiveservices.azure.com/";
 
-        // the Analyze method endpoint
+        // The Analyze method endpoint
         static string uriBase = endpoint + "vision/v3.1/analyze";
 
-        // Image you want analyzed (add to your bin/debug/netcoreappX.X folder)
-        // For sample images, download one from here (png or jpg):
-        // https://github.com/Azure-Samples/cognitive-services-sample-data-files/tree/master/ComputerVision/Images
-        static string imageFilePath = @"/Users/chenjunxu/Downloads/dog.jpg";
+        // Image URL you want to analyze
+        static string imageUrl = "https://github.com/Azure-Samples/cognitive-services-sample-data-files/raw/master/ComputerVision/Images/house.jpg";
 
         public static void Main()
         {
             // Call the API
-            MakeAnalysisRequest(imageFilePath).Wait();
+            MakeAnalysisRequest(imageUrl).Wait();
 
             Console.WriteLine("\nPress Enter to exit...");
             Console.ReadLine();
@@ -34,8 +32,8 @@ namespace CSHttpClientSample
         /// Gets the analysis of the specified image file by using
         /// the Computer Vision REST API.
         /// </summary>
-        /// <param name="imageFilePath">The image file to analyze.</param>
-        static async Task MakeAnalysisRequest(string imageFilePath)
+        /// <param name="imageUrl">The URL of the image to analyze.</param>
+        static async Task MakeAnalysisRequest(string imageUrl)
         {
             try
             {
@@ -62,9 +60,8 @@ namespace CSHttpClientSample
 
                 HttpResponseMessage response;
 
-                // Read the contents of the specified local image
-                // into a byte array.
-                byte[] byteData = GetImageAsByteArray(imageFilePath);
+                // Download the image from the URL.
+                byte[] byteData = await client.GetByteArrayAsync(imageUrl);
 
                 // Add the byte array as an octet stream to the request body.
                 using (ByteArrayContent content = new ByteArrayContent(byteData))
@@ -89,23 +86,6 @@ namespace CSHttpClientSample
             catch (Exception e)
             {
                 Console.WriteLine("\n" + e.Message);
-            }
-        }
-
-        /// <summary>
-        /// Returns the contents of the specified file as a byte array.
-        /// </summary>
-        /// <param name="imageFilePath">The image file to read.</param>
-        /// <returns>The byte array of the image data.</returns>
-        static byte[] GetImageAsByteArray(string imageFilePath)
-        {
-            // Open a read-only file stream for the specified file.
-            using (FileStream fileStream =
-                new FileStream(imageFilePath, FileMode.Open, FileAccess.Read))
-            {
-                // Read the file's contents into a byte array.
-                BinaryReader binaryReader = new BinaryReader(fileStream);
-                return binaryReader.ReadBytes((int)fileStream.Length);
             }
         }
     }
